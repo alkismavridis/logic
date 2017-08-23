@@ -1,11 +1,12 @@
-class LogicTheory {
+class LogicTheory : LogicObject {
 //Fields
 	private var words:[LogicWord]
 
 
 //Constructors
-	init() {
+	override init() {
 		words = [LogicWord]()
+		super.init()
 	}
 
 
@@ -13,7 +14,7 @@ class LogicTheory {
 	public func getWords()->[LogicWord] { return self.words }
 	public func getWordCount()->Int { return self.words.count }
 
-	public func get(_ word:String)->LogicWord? {
+	public func getWord(_ word:String)->LogicWord {
 		let ind:Int? = self.words.index(where: { (el)->Bool in
 			return el.toString() == word
 		})

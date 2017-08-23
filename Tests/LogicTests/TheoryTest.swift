@@ -8,19 +8,19 @@ class TheoryTest: XCTestCase {
 		let theory = LogicTheory()
 		XCTAssertEqual(theory.getWordCount(), 0)
 
-		theory.get("Hello")
+		theory.getWord("Hello")
 		XCTAssertEqual(theory.getWordCount(), 1)
 
-		theory.get("World")
+		theory.getWord("World")
 		XCTAssertEqual(theory.getWordCount(), 2)
 
-		theory.get("hello")
+		theory.getWord("hello")
 		XCTAssertEqual(theory.getWordCount(), 3)
 
-		theory.get("World")
+		theory.getWord("World")
 		XCTAssertEqual(theory.getWordCount(), 3)
 
-		theory.get("Hello")
+		theory.getWord("Hello")
 		XCTAssertEqual(theory.getWordCount(), 3)
     }
 

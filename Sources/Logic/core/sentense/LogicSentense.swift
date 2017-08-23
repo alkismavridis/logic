@@ -2,6 +2,7 @@ class LogicSentense : LogicValue {
 //FIELDS
 	private var ph1:LogicPhrase, ph2:LogicPhrase
 	private var bridge:LogicBridge
+	private var axiomFlag:Bool
 
 
 //CONSTRUCTORS
@@ -9,6 +10,12 @@ class LogicSentense : LogicValue {
 		ph1 = LogicPhrase(num:Int(length1))
 		ph2 = LogicPhrase(num:Int(length2))
 		bridge = LogicBridge()
+		axiomFlag = false
+	}
+
+	convenience init(from base:LogicSentense, side:UInt8, check:Bool = true) {
+		self.init(length1:base.ph1.getLength(), length2:base.ph2.getLength())
+		self.start(from:base, side:side, check:check, 0, 0)
 	}
 
 
@@ -24,6 +31,11 @@ class LogicSentense : LogicValue {
 	}
 
 	public func getBridge()->LogicBridge {return bridge}
+
+	public func isAxiom() -> Bool { return axiomFlag }
+	public func setAxiom(_ b:Bool) { self.axiomFlag = b }
+
+
 
 
 
@@ -64,8 +76,8 @@ class LogicSentense : LogicValue {
 		}
 	}
 
-	public func isStartLegal(base:LogicSentense, side:UInt8)->UInt8 {
-		if (side == LogicMove.LEFT_SIDE && !base.getBridge().isTwoWay()) {
+	public static func isStartLegal(base:LogicSentense, side:UInt8)->UInt8 {
+		if (side == LogicMove.RIGHT_SIDE && !base.getBridge().isTwoWay()) {
 			return LogicMove.ILLEGAL_DIRECTION
 		}
 		return LogicMove.LEGAL
@@ -81,6 +93,7 @@ class LogicSentense : LogicValue {
 		ret.ph2 = LogicPhrase(words:right)
 		ret.bridge.type = type
 		ret.bridge.grade = grade
+		ret.axiomFlag = true
 
 		return ret
 	}
@@ -90,26 +103,29 @@ class LogicSentense : LogicValue {
 	public func start(from base:LogicSentense, side:UInt8, check:Bool, _ plus1:Int, _ plus2:Int) ->UInt8 {
 		//check legal
 		if check {
-			let legal:UInt8 = isStartLegal(base:base, side:side)
-			if legal != 0 {return legal}
+			let legal:UInt8 = LogicSentense.isStartLegal(base:base, side:side)
+			if legal != LogicMove.LEGAL { return legal }
 		}
+
 
 		//do it
 		switch side {
-			case LogicMove.ALL:
+			case LogicMove.BOTH_SIDES:
 				ph1.copy(from:base.ph1, plus:plus1)
 				ph2.copy(from:base.ph2, plus:plus2)
 
-			case LogicMove.FIRST:
+			case LogicMove.LEFT_SIDE:
 				ph2.copy(from:base.ph1, plus:plus2)
 				ph1.copy(from:base.ph1, plus:plus1)
 
-			case LogicMove.SECOND:
+			case LogicMove.RIGHT_SIDE:
 				ph1.copy(from:base.ph2, plus:plus1)
 				ph2.copy(from:base.ph2, plus:plus2)
 
 			default: return LogicMove.UNKNOWN_MOVE
 		}
+
+		print("22222")
 
 		bridge.grade = base.bridge.grade
 		bridge.type = base.bridge.type
@@ -169,7 +185,7 @@ class LogicSentense : LogicValue {
 
 	public func selectAndReplace(base:LogicSentense, move:LogicMove, sel:LogicSelection, check:Bool) -> UInt8 {
 		let s:UInt8 = select(base:base, move:move, sel:sel, check:check)
-		if s==0 { replace(move.side, of:base, sel:sel) }
+		if s==LogicMove.LEGAL { replace(move.side, of:base, sel:sel) }
 		return s
 	}
 

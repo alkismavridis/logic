@@ -2,7 +2,7 @@ import Foundation
 
 
 class LogicPhrase : LogicValue {
-	static let AUTO_INCREMENT:UInt32 = 100
+	static let SIZE_INCREMENT:UInt32 = 100
 
 
 //Fields
@@ -30,12 +30,8 @@ class LogicPhrase : LogicValue {
 
 //Space management
 	public func ensureCapacity(_ capacity:UInt32) {
-		print(words.count,  words.capacity, "asked:",capacity)
 		words.reserveCapacity(Int(capacity))
-
-		print(words.count,  words.capacity)
 		for _ in words.count..<words.capacity {words.append(nil)}
-		print(words.count,  words.capacity)
 	}
 
 	public func saveSpace() {
@@ -44,11 +40,22 @@ class LogicPhrase : LogicValue {
 	}
 
 
+//Logic Word Manipulation
+	public func add(_ word: LogicWord) {
+		if Int(length) >= words.count {
+			ensureCapacity(length + LogicPhrase.SIZE_INCREMENT)
+		}
+
+		words[Int(length)] = word
+		length += 1
+	}
+
+
 
 //Cloning
 	public func copy(from:LogicPhrase, plus:Int = 0) {
 		words = [LogicWord?](repeating: nil, count:from.words.count + plus)
-		for i in 0...from.words.count { words[i] = from.words[i] }
+		for i in 0..<from.getLength() { print(i) ; words[Int(i)] = from.words[Int(i)] }
 
 		length = UInt32(from.words.count)
 	}
@@ -75,6 +82,7 @@ class LogicPhrase : LogicValue {
 
 		return true
 	}
+
 	public func select(_ target:LogicPhrase, sel:inout [UInt32]) {
 		let words2:[LogicWord?] = target.words
 		let phrsLen:UInt32 = target.length
@@ -201,7 +209,7 @@ class LogicPhrase : LogicValue {
 		else {
 			var tmp:[LogicWord?] = [LogicWord?](
 				repeating: nil,
-				count:Int(length) + totalDif + Int(LogicPhrase.AUTO_INCREMENT)
+				count:Int(length) + totalDif + Int(LogicPhrase.SIZE_INCREMENT)
 			)
 
 			i = Int(length)+totalDif-1

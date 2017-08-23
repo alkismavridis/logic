@@ -7,20 +7,20 @@ class SentenseTest: XCTestCase {
 
 		//1. create the 2 word arrays
 		let words1 = [
-			theory.get("1"),
-			theory.get("2"),
-			theory.get("3"),
-			theory.get("1"),
-			theory.get("2")
+			theory.getWord("1"),
+			theory.getWord("2"),
+			theory.getWord("3"),
+			theory.getWord("1"),
+			theory.getWord("2")
 		]
 
 		let words2 = [
-			theory.get("1"),
-			theory.get("2")
+			theory.getWord("1"),
+			theory.getWord("2")
 		]
 
 		//3. create the axiom
-		var ax:LogicSentense = LogicSentense.generateAxiom(left:words1, right:words2, type:LogicBridge.TWO_WAY, grade:1)
+		let ax:LogicSentense = LogicSentense.generateAxiom(left:words1, right:words2, type:LogicBridge.TWO_WAY, grade:1)
 
 		//4. test phrase getters
 		XCTAssertEqual(ax.getPhrase(LogicMove.LEFT_SIDE).toJson(), "\"1 2 3 1 2 \"")
@@ -36,149 +36,77 @@ class SentenseTest: XCTestCase {
 		XCTAssertEqual(ax.toJson(), "\"1 2 3 1 2 __1__ 1 2 \"")
 	}
 
-	func testPhraseReplaceEqualSize() {
+	public func testStart() {
+		//TODO test isMoveLegal, selectAndReplace for legal and non legal moves
+
+		//1. Create an Axiom to start
 		let theory = LogicTheory()
-
-		//1. create the target phrase
 		let words1 = [
-			theory.get("1"),
-			theory.get("2"),
-			theory.get("3"),
-			theory.get("1"),
-			theory.get("2")
+			theory.getWord("1"),
+			theory.getWord("2"),
+			theory.getWord("3"),
+			theory.getWord("1"),
+			theory.getWord("2")
 		]
-		let phrase = LogicPhrase(words:words1)
 
-		//2. create the search phrase
 		let words2 = [
-			theory.get("1"),
-			theory.get("2")
+			theory.getWord("1"),
+			theory.getWord("2")
 		]
-		let searchPhrase = LogicPhrase(words:words2)
 
-		//select
-		var sel = [UInt32]()
-		phrase.select(searchPhrase, sel:&sel)
+		let axiom1:LogicSentense = LogicSentense.generateAxiom(left:words1, right:words2, type:LogicBridge.ONE_WAY, grade:3)
 
-		let words3 = [
-			theory.get("9"),
-			theory.get("8"),
-		]
-		let replacePhrase = LogicPhrase(words:words3)
-		phrase.replace(replacePhrase, 2, sel)
-		XCTAssertEqual(phrase.toJson(), "\"9 8 3 9 8 \"")
-		XCTAssertEqual(phrase.getLength(), 5)
+
+		//Test legality of Starts
+		XCTAssertEqual(LogicMove.LEGAL, LogicSentense.isStartLegal(base:axiom1, side:LogicMove.LEFT_SIDE))
+		XCTAssertEqual(LogicMove.ILLEGAL_DIRECTION, LogicSentense.isStartLegal(base:axiom1, side:LogicMove.RIGHT_SIDE))
+		XCTAssertEqual(LogicMove.LEGAL, LogicSentense.isStartLegal(base:axiom1, side:LogicMove.BOTH_SIDES))
+
+		//Make 3 starts
+		let th1:LogicSentense = LogicSentense(from:axiom1, side:LogicMove.LEFT_SIDE, check:false)
+		let th2:LogicSentense = LogicSentense(from:axiom1, side:LogicMove.RIGHT_SIDE, check:true)
+		let thBoth:LogicSentense = LogicSentense(from:axiom1, side:LogicMove.BOTH_SIDES, check:false)
+
+		XCTAssertEqual("\"1 2 3 1 2 __3-- 1 2 3 1 2 \"", th1.toJson())
+		XCTAssertEqual("\"__0-- \"", th2.toJson())
+		XCTAssertEqual("\"1 2 3 1 2 __3-- 1 2 \"", thBoth.toJson())
+
+
+
+		//Now try the same with a two-way axiom
+		let axiom2:LogicSentense = LogicSentense.generateAxiom(left:words1, right:words2, type:LogicBridge.TWO_WAY, grade:2)
+
+		let th1_2:LogicSentense = LogicSentense(from:axiom2, side:LogicMove.LEFT_SIDE, check:false)
+		let th2_2:LogicSentense = LogicSentense(from:axiom2, side:LogicMove.RIGHT_SIDE, check:true)
+		let thBoth_2:LogicSentense = LogicSentense(from:axiom2, side:LogicMove.BOTH_SIDES, check:false)
+
+		XCTAssertEqual("\"1 2 3 1 2 __2__ 1 2 3 1 2 \"", th1_2.toJson())
+		XCTAssertEqual("\"1 2 __2__ 1 2 \"", th2_2.toJson())
+		XCTAssertEqual("\"1 2 3 1 2 __2__ 1 2 \"", thBoth_2.toJson())
 	}
 
-	func testPhraseReplaceToSmaller() {
+	public func testMoveLegal() {
+		//TODO test isMoveLegal, selectAndReplace for legal and non legal moves
 		let theory = LogicTheory()
 
-		//1. create the target phrase
-		let words1 = [
-			theory.get("1"),
-			theory.get("2"),
-			theory.get("3"),
-			theory.get("1"),
-			theory.get("2")
-		]
-		let phrase = LogicPhrase(words:words1)
 
-		//2. create the search phrase
-		let words2 = [
-			theory.get("1"),
-			theory.get("2")
-		]
-		let searchPhrase = LogicPhrase(words:words2)
+		//TEST INDIVIDUAL REPLACEMENTS
 
-		//select
-		var sel = [UInt32]()
-		phrase.select(searchPhrase, sel:&sel)
 
-		let words3 = [
-			theory.get("9"),
-		]
-		let replacePhrase = LogicPhrase(words:words3)
-		phrase.replace(replacePhrase, 2, sel)
-		XCTAssertEqual(phrase.toJson(), "\"9 3 9 \"")
-		XCTAssertEqual(phrase.getLength(), 3)
+		//TEST PHRASE REPLACEMENTS
+
+
+		//TEST SENTENSE REPLACEMENTS
+
 	}
 
-	func testPhraseReplaceToBigger() {
-		let theory = LogicTheory()
-
-		//1. create the target phrase
-		let words1 = [
-			theory.get("1"),
-			theory.get("2"),
-			theory.get("3"),
-			theory.get("1"),
-			theory.get("2")
-		]
-		let phrase = LogicPhrase(words:words1)
-
-		//2. create the search phrase
-		let words2 = [
-			theory.get("1"),
-			theory.get("2")
-		]
-		let searchPhrase = LogicPhrase(words:words2)
-
-		//select
-		var sel = [UInt32]()
-		phrase.select(searchPhrase, sel:&sel)
-
-		let words3 = [
-			theory.get("9"),
-			theory.get("8"),
-			theory.get("7"),
-			theory.get("9"),
-		]
-		let replacePhrase = LogicPhrase(words:words3)
-		phrase.replace(replacePhrase, 2, sel)
-		XCTAssertEqual(phrase.toJson(), "\"9 8 7 9 3 9 8 7 9 \"")
-		XCTAssertEqual(phrase.getLength(), 9)
-	}
-
-	func testPhraseReplaceToBiggerNoCopy() {
-		let theory = LogicTheory()
-
-		//1. create the target phrase
-		let words1 = [
-			theory.get("1"),
-			theory.get("2"),
-			theory.get("3"),
-			theory.get("1"),
-			theory.get("2")
-		]
-		let phrase = LogicPhrase(words:words1)
-		phrase.ensureCapacity(500)
-		XCTAssertGreaterThan(phrase.getCapacity(), 500)
 
 
-		//2. create the search phrase
-		let words2 = [
-			theory.get("1"),
-			theory.get("2")
-		]
-		let searchPhrase = LogicPhrase(words:words2)
 
-		//select
-		var sel = [UInt32]()
-		phrase.select(searchPhrase, sel:&sel)
-
-		let words3 = [
-			theory.get("9"),
-			theory.get("8"),
-			theory.get("7"),
-			theory.get("9"),
-		]
-		let replacePhrase = LogicPhrase(words:words3)
-		phrase.replace(replacePhrase, 2, sel)
-		XCTAssertEqual(phrase.toJson(), "\"9 8 7 9 3 9 8 7 9 \"")
-		XCTAssertEqual(phrase.getLength(), 9)
-	}
-
+//TEST ARRAY
 	static var allTests = [
         ("testAxiom", testAxiom),
+		("testMoveLegal", testMoveLegal),
+		("testStart", testStart),
     ]
 }
