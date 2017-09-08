@@ -6,4 +6,5 @@ XCTMain([
 	testCase(PhraseTest.allTests),
 	testCase(SentenseTest.allTests),
 	testCase(LogicObjectTest.allTests),
+	testCase(ProofTest.allTests),
 ])

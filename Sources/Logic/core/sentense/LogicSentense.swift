@@ -1,8 +1,15 @@
+enum SentenseType {
+	case AXIOM
+	case THEOREM
+	case PLASI
+}
+
+
 class LogicSentense : LogicValue {
 //FIELDS
 	private var ph1:LogicPhrase, ph2:LogicPhrase
 	private var bridge:LogicBridge
-	private var axiomFlag:Bool
+	private var type:SentenseType
 
 
 //CONSTRUCTORS
@@ -10,7 +17,7 @@ class LogicSentense : LogicValue {
 		ph1 = LogicPhrase(num:Int(length1))
 		ph2 = LogicPhrase(num:Int(length2))
 		bridge = LogicBridge()
-		axiomFlag = false
+		type = SentenseType.PLASI
 	}
 
 	convenience init(from base:LogicSentense, side:UInt8, check:Bool = true) {
@@ -32,17 +39,17 @@ class LogicSentense : LogicValue {
 
 	public func getBridge()->LogicBridge {return bridge}
 
-	public func isAxiom() -> Bool { return axiomFlag }
-	public func setAxiom(_ b:Bool) { self.axiomFlag = b }
+	public func getType() -> SentenseType { return type }
+	public func setType(_ t:SentenseType) { self.type = t }
 
 
 
 
 
 //LOGIC RULES
-	public func isMoveLegal(_ mv:LogicMove, on base:LogicSentense)->UInt8 {
+	public func isMoveLegal(_ mv:LogicMove, from base:LogicSentense)->UInt8 {
 		let baseBridge:LogicBridge = base.bridge
-		if mv.side == 2 && baseBridge.type == LogicBridge.ONE_WAY {
+		if mv.dir == LogicMove.RIGHT_TO_LEFT && baseBridge.type == LogicBridge.ONE_WAY {
 			return LogicMove.ILLEGAL_DIRECTION
 		}
 
@@ -54,7 +61,9 @@ class LogicSentense : LogicValue {
 				else { return LogicMove.LEGAL }
 
 			case LogicMove.FIRST:
-				if (bridge.type == LogicBridge.ONE_WAY) {return LogicMove.PLASI_IS_ONE_WAY}
+				if (bridge.type == LogicBridge.ONE_WAY) {
+					return LogicMove.ILEGAL_FIRST_PHRASE_EDIT
+				}
 				if(baseBridge.grade > bridge.grade) {return LogicMove.BASE_GRADE_TO_BIG}
 				return LogicMove.LEGAL
 
@@ -63,13 +72,19 @@ class LogicSentense : LogicValue {
 				return LogicMove.LEGAL
 
 			case LogicMove.ONE_IN_FIRST:
+				if (bridge.type == LogicBridge.ONE_WAY) {
+					return LogicMove.ILEGAL_FIRST_PHRASE_EDIT
+				}
+
+				let side:UInt8 = mv.dir == LogicMove.LEFT_TO_RIGHT ? LogicMove.LEFT_SIDE : LogicMove.RIGHT_SIDE
 				if (baseBridge.grade != 0) {return LogicMove.BASE_GRADE_NOT_ZERO}
-				if(!ph1.match(base.getPhrase(mv.side), pos:mv.pos)) {return LogicMove.MATCH_FAILED}
+				if(!ph1.match(base.getPhrase(side), pos:mv.pos)) {return LogicMove.MATCH_FAILED}
 				return LogicMove.LEGAL
 
 			case LogicMove.ONE_IN_SECOND:
+				let side:UInt8 = mv.dir == LogicMove.LEFT_TO_RIGHT ? LogicMove.LEFT_SIDE : LogicMove.RIGHT_SIDE
 				if (baseBridge.grade != 0) {return LogicMove.BASE_GRADE_NOT_ZERO}
-				if (!ph2.match(base.getPhrase(mv.side), pos:mv.pos)) {return LogicMove.MATCH_FAILED}
+				if (!ph2.match(base.getPhrase(side), pos:mv.pos)) {return LogicMove.MATCH_FAILED}
 				return LogicMove.LEGAL
 
 			default: return LogicMove.UNKNOWN_MOVE
@@ -93,7 +108,7 @@ class LogicSentense : LogicValue {
 		ret.ph2 = LogicPhrase(words:right)
 		ret.bridge.type = type
 		ret.bridge.grade = grade
-		ret.axiomFlag = true
+		ret.type = SentenseType.AXIOM
 
 		return ret
 	}
@@ -125,10 +140,10 @@ class LogicSentense : LogicValue {
 			default: return LogicMove.UNKNOWN_MOVE
 		}
 
-		print("22222")
-
 		bridge.grade = base.bridge.grade
 		bridge.type = base.bridge.type
+
+		type = SentenseType.PLASI
 		return LogicMove.LEGAL
 	}
 
@@ -138,24 +153,27 @@ class LogicSentense : LogicValue {
 		//check legal
 		var legal:UInt8;
 		if check {
-			legal = isMoveLegal(move, on:base)
+			legal = isMoveLegal(move, from:base)
 			if legal != LogicMove.LEGAL { return legal }
 		}
 
 		switch move.type {
 			case LogicMove.ALL:
-				ph1.select(base.getPhrase(move.side), sel: &sel.getPtr1().pointee)
-				ph2.select(base.getPhrase(move.side), sel: &sel.getPtr2().pointee)
+				let side:UInt8 = move.dir == LogicMove.LEFT_TO_RIGHT ? LogicMove.LEFT_SIDE : LogicMove.RIGHT_SIDE
+				ph1.select(base.getPhrase(side), sel: &sel.getPtr1().pointee)
+				ph2.select(base.getPhrase(side), sel: &sel.getPtr2().pointee)
 				return LogicMove.LEGAL
 
 			case LogicMove.FIRST:
-				sel.clear1()
-				ph1.select(base.getPhrase(move.side), sel: &sel.getPtr1().pointee)
+				sel.clear2()
+				let side:UInt8 = move.dir == LogicMove.LEFT_TO_RIGHT ? LogicMove.LEFT_SIDE : LogicMove.RIGHT_SIDE
+				ph1.select(base.getPhrase(side), sel: &sel.getPtr1().pointee)
 				return LogicMove.LEGAL
 
 			case LogicMove.SECOND:
-				sel.clear2()
-				ph2.select(base.getPhrase(move.side), sel: &sel.getPtr2().pointee)
+				sel.clear1()
+				let side:UInt8 = move.dir == LogicMove.LEFT_TO_RIGHT ? LogicMove.LEFT_SIDE : LogicMove.RIGHT_SIDE
+				ph2.select(base.getPhrase(side), sel: &sel.getPtr2().pointee)
 				return LogicMove.LEGAL
 
 			case LogicMove.ONE_IN_FIRST:
@@ -175,6 +193,7 @@ class LogicSentense : LogicValue {
 	}
 
 	public func replace(_ side:UInt8, of base:LogicSentense, sel:LogicSelection) {
+		if (type != SentenseType.PLASI) { return }
 		let old:LogicPhrase = base.getPhrase(side)
 		let newPh:LogicPhrase = base.getTheOther(side)
 		let oldLen:UInt32 = old.getLength()
@@ -185,7 +204,9 @@ class LogicSentense : LogicValue {
 
 	public func selectAndReplace(base:LogicSentense, move:LogicMove, sel:LogicSelection, check:Bool) -> UInt8 {
 		let s:UInt8 = select(base:base, move:move, sel:sel, check:check)
-		if s==LogicMove.LEGAL { replace(move.side, of:base, sel:sel) }
+
+		let side:UInt8 = move.dir == LogicMove.LEFT_TO_RIGHT ? LogicMove.LEFT_SIDE : LogicMove.RIGHT_SIDE
+		if s==LogicMove.LEGAL { replace(side, of:base, sel:sel) }
 		return s
 	}
 

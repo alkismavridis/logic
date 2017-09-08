@@ -17,15 +17,15 @@ class LogicObject : LogicValue {
 
 
 //GETTERS
-	public func get(_ name: String) -> LogicValue? {
+	public func getVar(_ name: String) -> LogicValue? {
 		let ret:LogicValue?? = fields[name]
 		if ret == nil { return nil }
 		else { return  ret! }
 	}
 
 
-/**If safe is set to false, an exception is thrown instead of nil being returned*/
-	public func get(safe:Bool, path:[String]) throws -> LogicValue? {
+	/**If safe is set to false, an exception is thrown instead of nil being returned*/
+	public func getVar(safe:Bool, path:[String]) throws -> LogicValue? {
 		var currentObj:LogicValue? = self
 
 		for str in path {
@@ -37,7 +37,7 @@ class LogicObject : LogicValue {
 
 			//check if type is object, and proceed the chain
 			if let obj = currentObj as? LogicObject {
-				currentObj = obj.get(str)
+				currentObj = obj.getVar(str)
 			}
 			else {
 				if safe { return nil }
@@ -48,21 +48,21 @@ class LogicObject : LogicValue {
 		return currentObj
 	}
 
-	public func getPath(_ path:String...) -> LogicValue? {
+	public func getVarPath(_ path:String...) -> LogicValue? {
 		do {
-			return try self.get(safe: true, path:path)
+			return try self.getVar(safe: true, path:path)
 		}
-		catch let error1 as Error { return nil }
+		catch _ { return nil }
 	}
 
-	public func get(safe:Bool, path:String...) throws -> LogicValue? {
-		return try self.get(safe:safe, path:path)
+	public func getVar(safe:Bool, path:String...) throws -> LogicValue? {
+		return try self.getVar(safe:safe, path:path)
 	}
 
 
 
 //SETTERS
-	public func put(_ name:String, _ val:LogicValue?) {
+	public func putVar(_ name:String, _ val:LogicValue?) {
 		fields[name] = val
 	}
 

@@ -24,8 +24,27 @@ class TheoryTest: XCTestCase {
 		XCTAssertEqual(theory.getWordCount(), 3)
     }
 
+	func testScopeFunctions() {
+		let th = LogicTheory()
+		let th2 = LogicTheory(parent:th)
+		let th3 = LogicTheory(parent:th2)
+
+		//assertions
+		XCTAssertFalse(th === th2)
+		XCTAssertFalse(th2 === th3)
+		XCTAssertFalse(th === th3)
+
+		XCTAssertNil(th.getParentScope())
+		XCTAssertNil(th.getParentTheory())
+		XCTAssertTrue(th2.getParentScope() as! AnyObject? === th as! AnyObject?)
+		XCTAssertTrue(th2.getParentTheory() as! AnyObject? === th as! AnyObject?)
+		XCTAssertTrue(th3.getParentScope() as! AnyObject? === th2 as! AnyObject?)
+		XCTAssertTrue(th3.getParentTheory() as! AnyObject === th2 as! AnyObject?)
+	}
+
 
     static var allTests = [
         ("testTheorySymbolAdding", testTheorySymbolAdding),
+		("testScopeFunctions", testScopeFunctions)
     ]
 }

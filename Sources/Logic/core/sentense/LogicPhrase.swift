@@ -55,7 +55,7 @@ class LogicPhrase : LogicValue {
 //Cloning
 	public func copy(from:LogicPhrase, plus:Int = 0) {
 		words = [LogicWord?](repeating: nil, count:from.words.count + plus)
-		for i in 0..<from.getLength() { print(i) ; words[Int(i)] = from.words[Int(i)] }
+		for i in 0..<from.getLength() { words[Int(i)] = from.words[Int(i)] }
 
 		length = UInt32(from.words.count)
 	}

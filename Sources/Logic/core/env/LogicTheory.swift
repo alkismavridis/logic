@@ -1,11 +1,13 @@
-class LogicTheory : LogicObject {
+class LogicTheory : LogicObject, Scope {
 //Fields
 	private var words:[LogicWord]
+	private var parent:Scope?
 
 
 //Constructors
-	override init() {
+	init(parent:Scope? = nil) {
 		words = [LogicWord]()
+		self.parent = parent
 		super.init()
 	}
 
@@ -25,5 +27,15 @@ class LogicTheory : LogicObject {
 			return ret
 		}
 		return words[ind!]
+	}
+
+	public func getParentScope() -> Scope? {
+		return parent
+	}
+
+	public func getParentTheory() -> LogicTheory? {
+		if parent == nil { return nil }
+		if parent is LogicTheory { return (parent as! LogicTheory) }
+		return parent!.getParentTheory()
 	}
 }

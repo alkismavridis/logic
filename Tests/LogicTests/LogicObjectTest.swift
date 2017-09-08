@@ -26,8 +26,8 @@ class LogicObjectTest: XCTestCase {
 		e.add(theory.getWord("9"))
 
 		var d:LogicObject = LogicObject()
-		d.put("e", e)
-		d.put("f", f)
+		d.putVar("e", e)
+		d.putVar("f", f)
 
 		var c:LogicPhrase = LogicPhrase(num:3)
 		c.add(theory.getWord("4"))
@@ -36,8 +36,8 @@ class LogicObjectTest: XCTestCase {
 
 
 		var b:LogicObject = LogicObject()
-		b.put("c", c)
-		b.put("d", d)
+		b.putVar("c", c)
+		b.putVar("d", d)
 
 		var a:LogicPhrase = LogicPhrase(num:3)
 		a.add(theory.getWord("1"))
@@ -45,8 +45,8 @@ class LogicObjectTest: XCTestCase {
 		a.add(theory.getWord("3"))
 
 		var root:LogicObject = LogicObject()
-		root.put("a", a)
-		root.put("b", b)
+		root.putVar("a", a)
+		root.putVar("b", b)
 
 		return root
 	}
@@ -57,25 +57,25 @@ class LogicObjectTest: XCTestCase {
 		let theory = LogicTheory()
 		let root:LogicObject = self.getStructure(theory)
 
-		XCTAssertNil(root.get("notExists"))
-		XCTAssertEqual("\"1 2 3 \"", root.get("a")!.toJson())
+		XCTAssertNil(root.getVar("notExists"))
+		XCTAssertEqual("\"1 2 3 \"", root.getVar("a")!.toJson())
 
-		let b:LogicObject = root.get("b") as! LogicObject
-		XCTAssertEqual("\"4 5 6 \"", b.get("c")!.toJson())
+		let b:LogicObject = root.getVar("b") as! LogicObject
+		XCTAssertEqual("\"4 5 6 \"", b.getVar("c")!.toJson())
 
 		b.remove("c")
-		XCTAssertNil(b.get("c"))
+		XCTAssertNil(b.getVar("c"))
     }
 
 	func testGetPath() {
 		let theory = LogicTheory()
 		let root:LogicObject = self.getStructure(theory)
 
-		XCTAssertEqual("\"7 8 9 \"", root.getPath("b", "d", "e")!.toJson())
+		XCTAssertEqual("\"7 8 9 \"", root.getVarPath("b", "d", "e")!.toJson())
 
 		//fail cases
-		XCTAssertNil(root.getPath("b", "d", "e", "class cast error"))
-		XCTAssertNil(root.getPath("b", "Null pointer error", "e"))
+		XCTAssertNil(root.getVarPath("b", "d", "e", "class cast error"))
+		XCTAssertNil(root.getVarPath("b", "Null pointer error", "e"))
 	}
 
 
