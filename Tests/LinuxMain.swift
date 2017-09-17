@@ -7,4 +7,6 @@ XCTMain([
 	testCase(SentenseTest.allTests),
 	testCase(LogicObjectTest.allTests),
 	testCase(ProofTest.allTests),
+	testCase(LogicStreamTest.allTests),
+	testCase(AxiomParserTest.allTests)
 ])

@@ -4,6 +4,7 @@ class Proof:Scope {
 	private var theory:LogicTheory
 	private var vars:LogicObject
 	private var ret:LogicSentense
+	private var checks:Bool
 
 
 //CONSTRUCTORS
@@ -15,36 +16,33 @@ class Proof:Scope {
 
 		vars = LogicObject()
 		ret = LogicSentense(length1:length1, length2:length2)
+		checks = true
 	}
 
 
 //GETTERS AND SETTERS
+	public func hasChecks() -> Bool { return checks }
+	public func setChecks(_ checks:Bool) { self.checks = checks }
 
 
 
 //OVERRIDES
-	func getVar(_ name:String) -> LogicValue? {
+	func getOwnVar(_ name:String) -> LogicValue? {
 		return vars.getVar(name)
 	}
 
-	func getVar(safe:Bool, path:[String]) throws -> LogicValue? {
-		do { return try vars.getVar(safe:safe, path:path) }
-	}
-
-	func getVarPath(_ path:String...) -> LogicValue? {
-		do { return try vars.getVar(safe:true, path:path) }
-		catch _ { return nil }
-	}
-
-	func getVar(safe:Bool, path:String...) throws -> LogicValue? {
-		do { return try vars.getVar(safe:safe, path:path) }
+	func getVar(_ name:String) -> LogicValue? {
+		let ret:LogicValue? = vars.getVar(name)
+		if ret != nil { return ret }
+		if parent == nil { return nil }
+		return parent!.getVar(name)
 	}
 
 	func putVar(_ name:String, _ val:LogicValue?) {
 		vars.putVar(name, val)
 	}
 
-	func remove(_ name:String) {
+	func removeVar(_ name:String) {
 		vars.remove(name)
 	}
 
@@ -58,5 +56,11 @@ class Proof:Scope {
 
 	func getParentTheory() -> LogicTheory? {
 		return theory
+	}
+
+	func getScopeWithVar(_ name:String) -> Scope? {
+		if self.getOwnVar(name) != nil { return self }
+		if parent == nil { return nil }
+		return parent!.getScopeWithVar(name)
 	}
 }

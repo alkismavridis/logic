@@ -2,6 +2,7 @@ enum SentenseType {
 	case AXIOM
 	case THEOREM
 	case PLASI
+	case AXIOM_PLASI
 }
 
 
@@ -23,6 +24,12 @@ class LogicSentense : LogicValue {
 	convenience init(from base:LogicSentense, side:UInt8, check:Bool = true) {
 		self.init(length1:base.ph1.getLength(), length2:base.ph2.getLength())
 		self.start(from:base, side:side, check:check, 0, 0)
+	}
+
+	public static func getAxiomPlasi() -> LogicSentense {
+		var ret = LogicSentense()
+		ret.type = SentenseType.AXIOM_PLASI
+		return ret
 	}
 
 
@@ -111,6 +118,30 @@ class LogicSentense : LogicValue {
 		ret.type = SentenseType.AXIOM
 
 		return ret
+	}
+
+	public func setBridge(_ br:LogicBridge) -> Bool {
+		if type != SentenseType.AXIOM_PLASI { return false }
+		self.bridge = br
+		return true
+	}
+
+	public func addToFirst(_ w:LogicWord) -> Bool {
+		if type != SentenseType.AXIOM_PLASI { return false }
+		ph1.add(w)
+		return true
+	}
+
+	public func addToSecond(_ w:LogicWord) -> Bool {
+		if type != SentenseType.AXIOM_PLASI { return false }
+		ph2.add(w)
+		return true
+	}
+
+	public func stabilizeAxiom() -> Bool {
+		if type != SentenseType.AXIOM_PLASI { return false }
+		self.type = SentenseType.AXIOM
+		return true
 	}
 
 
