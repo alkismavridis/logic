@@ -6,7 +6,11 @@ XCTMain([
 	testCase(PhraseTest.allTests),
 	testCase(SentenseTest.allTests),
 	testCase(LogicObjectTest.allTests),
-	testCase(ProofTest.allTests),
 	testCase(LogicStreamTest.allTests),
-	testCase(AxiomParserTest.allTests)
+	testCase(AxiomParserTest.allTests),
+	testCase(ObjectParserTest.allTests),
+	testCase(ExpressionParserTest.allTests),
+	testCase(LogicalOperatorsTest.allTests),
+	testCase(VariableDeclarationParserTest.allTests),
+	testCase(CommandParserTest.allTests),
 ])

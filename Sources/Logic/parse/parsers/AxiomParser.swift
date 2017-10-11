@@ -2,18 +2,18 @@ import Foundation
 
 class AxiomParser {
 	public static func parse(_ stream:LogicStream, _ sc:Scope) -> LogicSentense? {
-		var ret = LogicSentense.getAxiomPlasi()
+		let ret = LogicSentense.getAxiomPlasi()
 		var end = false
 
 		//read first sentense and bridge
 		while true {
 			let str = nextString(stream, &end)
 			if end {
-				stream.addMessage(1,1,"Axiom ended before reading a bridge.")
+				stream.addMessage(ParseMessageType.ERROR, 1, "Axiom ended before reading a bridge.")
 				return nil
 			}
 
-			var bridge = toBridge(str!)
+			let bridge = toBridge(str!)
 			if bridge != nil {
 				ret.setBridge(bridge!)
 				break
@@ -26,9 +26,9 @@ class AxiomParser {
 			let str = nextString(stream, &end)
 			if str==nil { break }
 
-			var bridge = toBridge(str!)
+			let bridge = toBridge(str!)
 			if bridge != nil {
-				stream.addMessage(1,1,"Second bridge found in Axiom")
+				stream.addMessage(ParseMessageType.ERROR, 1, "Second bridge found in Axiom")
 				if !end { skip(stream) }
 				return nil
 			}

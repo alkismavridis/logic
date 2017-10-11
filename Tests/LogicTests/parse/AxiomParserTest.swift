@@ -104,8 +104,7 @@ class AxiomParserTest: XCTestCase {
 	}
 
 	func testMessages() {
-		var test = 5
-		XCTAssertEqual(test, 6)
+		//TODO
 	}
 
 

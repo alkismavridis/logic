@@ -27,7 +27,7 @@ class LogicSentense : LogicValue {
 	}
 
 	public static func getAxiomPlasi() -> LogicSentense {
-		var ret = LogicSentense()
+		let ret = LogicSentense()
 		ret.type = SentenseType.AXIOM_PLASI
 		return ret
 	}
@@ -120,18 +120,21 @@ class LogicSentense : LogicValue {
 		return ret
 	}
 
+	@discardableResult
 	public func setBridge(_ br:LogicBridge) -> Bool {
 		if type != SentenseType.AXIOM_PLASI { return false }
 		self.bridge = br
 		return true
 	}
 
+	@discardableResult
 	public func addToFirst(_ w:LogicWord) -> Bool {
 		if type != SentenseType.AXIOM_PLASI { return false }
 		ph1.add(w)
 		return true
 	}
 
+	@discardableResult
 	public func addToSecond(_ w:LogicWord) -> Bool {
 		if type != SentenseType.AXIOM_PLASI { return false }
 		ph2.add(w)
@@ -146,13 +149,13 @@ class LogicSentense : LogicValue {
 
 
 //THEOREM START
-	public func start(from base:LogicSentense, side:UInt8, check:Bool, _ plus1:Int, _ plus2:Int) ->UInt8 {
+	@discardableResult
+	public func start(from base:LogicSentense, side:UInt8, check:Bool, _ plus1:Int, _ plus2:Int) -> UInt8 {
 		//check legal
 		if check {
 			let legal:UInt8 = LogicSentense.isStartLegal(base:base, side:side)
 			if legal != LogicMove.LEGAL { return legal }
 		}
-
 
 		//do it
 		switch side {

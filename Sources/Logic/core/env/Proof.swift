@@ -3,19 +3,19 @@ class Proof:Scope {
 	private var parent:Scope?
 	private var theory:LogicTheory
 	private var vars:LogicObject
-	private var ret:LogicSentense
+	private var ret:LogicSentense?
 	private var checks:Bool
 
 
 //CONSTRUCTORS
-	public init(parent:Scope, length1:UInt32 = 10, length2:UInt32 = 10) {
+	public init(parent:Scope) {
 		self.parent = parent
 
 		if parent is LogicTheory { theory = parent as! LogicTheory }
 		else { theory = parent.getParentTheory()! }
 
 		vars = LogicObject()
-		ret = LogicSentense(length1:length1, length2:length2)
+		ret = nil
 		checks = true
 	}
 
@@ -24,43 +24,50 @@ class Proof:Scope {
 	public func hasChecks() -> Bool { return checks }
 	public func setChecks(_ checks:Bool) { self.checks = checks }
 
+	public func setSentense(_ sen:LogicSentense?) { self.ret = sen }
+	public func getSentense() -> LogicSentense? { return self.ret }
+
 
 
 //OVERRIDES
-	func getOwnVar(_ name:String) -> LogicValue? {
+	public func getOwnVar(_ name:String) -> LogicValue? {
 		return vars.getVar(name)
 	}
 
-	func getVar(_ name:String) -> LogicValue? {
+	public func getVar(_ name:String) -> LogicValue? {
 		let ret:LogicValue? = vars.getVar(name)
 		if ret != nil { return ret }
 		if parent == nil { return nil }
 		return parent!.getVar(name)
 	}
 
-	func putVar(_ name:String, _ val:LogicValue?) {
+	public func putVar(_ name:String, _ val:LogicValue?) {
 		vars.putVar(name, val)
 	}
 
-	func removeVar(_ name:String) {
+	public func removeVar(_ name:String) {
 		vars.remove(name)
 	}
 
-	func getWord(_ word:String)->LogicWord {
+	public func getWord(_ word:String)->LogicWord {
 		return theory.getWord(word)
 	}
 
-	func getParentScope() -> Scope? {
+	public func getParentScope() -> Scope? {
 		return parent
 	}
 
-	func getParentTheory() -> LogicTheory? {
+	public func getParentTheory() -> LogicTheory? {
 		return theory
 	}
 
-	func getScopeWithVar(_ name:String) -> Scope? {
+	public func getScopeWithVar(_ name:String) -> Scope? {
 		if self.getOwnVar(name) != nil { return self }
 		if parent == nil { return nil }
 		return parent!.getScopeWithVar(name)
+	}
+
+	public func getCurrentSelection() -> LogicSelection {
+		return theory.getCurrentSelection()
 	}
 }

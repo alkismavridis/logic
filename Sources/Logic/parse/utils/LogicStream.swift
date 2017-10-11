@@ -3,6 +3,7 @@ class LogicStream  {
 	private var it:IndexingIterator<String.CharacterView>
 	private var name:String
 	private var onMessage: ((_ m:ParseMessage) -> Void)?
+	private var errorFlag:Bool
 
 	private var line:UInt32
 
@@ -17,6 +18,7 @@ class LogicStream  {
 		self.it = it
 		self.name = name
 		self.onMessage = onMessage
+		self.errorFlag = false
 		self.line = 1
 	}
 
@@ -42,9 +44,26 @@ class LogicStream  {
 		return line
 	}
 
-	public func addMessage(_ type:Int, _ id:Int, _ str:String) {
+	public func hasError() -> Bool {
+		return errorFlag
+	}
+
+
+
+//MESSAGES
+	public func addMessage(_ type:ParseMessageType, _ id:Int, _ str:String) {
+		if type == ParseMessageType.ERROR { errorFlag = true }
+
 		if onMessage == nil { return }
 		let mes = ParseMessage(type, id, str)
+		onMessage!(mes)
+	}
+
+	public func addError(_ id:Int, _ str:String) {
+		errorFlag = true
+		print(str)
+		if onMessage == nil { return }
+		let mes = ParseMessage(ParseMessageType.ERROR, id, str)
 		onMessage!(mes)
 	}
 }

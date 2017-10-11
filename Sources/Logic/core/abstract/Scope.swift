@@ -11,4 +11,6 @@ protocol Scope {
 	func getParentTheory() -> LogicTheory?
 
 	func getScopeWithVar(_ name:String) -> Scope?
+
+	func getCurrentSelection() -> LogicSelection
 }

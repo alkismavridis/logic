@@ -3,6 +3,7 @@ class LogicTheory : LogicValue, Scope {
 	private var words:[LogicWord]
 	private var parent:Scope?
 	private var vars:LogicObject
+	private var sel:LogicSelection
 
 
 //Constructors
@@ -10,6 +11,7 @@ class LogicTheory : LogicValue, Scope {
 		self.words = [LogicWord]()
 		self.parent = parent
 		self.vars = LogicObject()
+		self.sel = LogicSelection()
 		super.init()
 	}
 
@@ -41,28 +43,32 @@ class LogicTheory : LogicValue, Scope {
 		return parent!.getParentTheory()
 	}
 
-	func getScopeWithVar(_ name:String) -> Scope? {
+	public func getScopeWithVar(_ name:String) -> Scope? {
 		if self.getOwnVar(name) != nil { return self }
 		if parent == nil { return nil }
 		return parent!.getScopeWithVar(name)
 	}
 
-	func getOwnVar(_ name:String) -> LogicValue? {
+	public func getOwnVar(_ name:String) -> LogicValue? {
 		return vars.getVar(name)
 	}
 
-	func getVar(_ name:String) -> LogicValue? {
+	public func getVar(_ name:String) -> LogicValue? {
 		let ret:LogicValue? = vars.getVar(name)
 		if ret != nil { return ret }
 		if parent == nil { return nil }
 		return parent!.getVar(name)
 	}
 
-	func putVar(_ name:String, _ val:LogicValue?) {
+	public func putVar(_ name:String, _ val:LogicValue?) {
 		vars.putVar(name, val)
 	}
 
-	func removeVar(_ name:String) {
+	public func removeVar(_ name:String) {
 		vars.remove(name)
+	}
+
+	public func getCurrentSelection() -> LogicSelection {
+		return sel
 	}
 }
